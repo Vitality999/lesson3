@@ -3,6 +3,7 @@ import logging
 import ephem
 import datetime
 import keys
+from cities import city
 
 
 
@@ -241,6 +242,21 @@ def fullmoon(bot, update):
     else:
         update.message.reply_text('Вы забыли поставить знак "?"')
 
+def game(bot, update):
+    user_city = update.message.text.replace('/goroda', '').replace(' ', '')
+    answer = []
+    if user_city in city:
+        city.remove(user_city)
+        for counter in city:
+            letter = counter.startswith(user_city[-1].upper())
+            if letter is True:
+                answer.append(counter)
+
+        update.message.reply_text(answer[0])
+        city.remove(answer[0])
+    else:
+        update.message.reply_text('Такой город уже был или его не существует')
+
 
 def main():
     mybot = Updater(keys.tKey, request_kwargs=PROXY)
@@ -250,6 +266,7 @@ def main():
     dp.add_handler(CommandHandler("wordcount", counting_word))
     dp.add_handler(CommandHandler("calculate", calculate))
     dp.add_handler(CommandHandler("newmoon", fullmoon))
+    dp.add_handler(CommandHandler("goroda", game))
     dp.add_handler(MessageHandler(Filters.text, solar_system))
 
 
